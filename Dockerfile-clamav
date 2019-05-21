@@ -1,0 +1,9 @@
+FROM ubuntu
+RUN apt-get update \
+            && apt-get install -y clamav clamav-daemon wget netcat
+WORKDIR /var/lib/clamav
+RUN wget http://db.local.clamav.net/main.cvd \
+            &&  wget http://db.local.clamav.net/daily.cvd \
+            &&  wget http://db.local.clamav.net/bytecode.cvd \
+            && echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
+CMD service clamav-daemon start && tail -f /var/log/clamav/clamav.log
