@@ -7,26 +7,52 @@ import com.amazonaws.services.sqs.model.{Message, ReceiveMessageResult}
 import com.amazonaws.services.s3.{AmazonS3ClientBuilder, model}
 
 import scala.collection.JavaConverters._
-
 import fi.solita.clamav._
+import com.softwaremill.sttp._
+import io.circe._, io.circe.generic.auto._, io.circe.parser._
+import uk.gov.tna.tdr.fileformat.ApiSyntax._,
+uk.gov.tna.tdr.fileformat.Response,
+uk.gov.tna.tdr.fileformat.ApiSenderInstances._
 
 object ReceiveMessages extends App {
-  val queueName = "https://sqs.eu-west-1.amazonaws.com/247222723249/tdr-file-uploads"
 
-  val sqs = AmazonSQSClientBuilder.standard()
-      .withRegion("eu-west-1")
-      .build()
-  val s3 = AmazonS3ClientBuilder.standard()
-      .withRegion("eu-west-1")
-      .build()
+  val queueName =
+    "https://sqs.eu-west-2.amazonaws.com/247222723249/tdr-file-uploads"
+
+  val sqs = AmazonSQSClientBuilder
+    .standard()
+    .withRegion("eu-west-2")
+    .build()
+  val s3 = AmazonS3ClientBuilder
+    .standard()
+    .withRegion("eu-west-2")
+    .build()
+
+  def processJson(json: String): Unit = {
+    val either: Either[Error, Response] = decode[Response](json)
+    either match {
+      case Right(response) => response.sendToApi
+      case Left(error)     => println(error)
+    }
+  }
+
+  def addToDatabase(response: Response): Unit = {
+    println(response)
+  }
 
   def runChecks(key: String) = {
-    println(s"running checks on ${key}")
-    val obj: model.S3Object = s3.getObject("tna-tdr-files", key)
-    println(virusCheck(obj))
-
-
-
+    println(s"running checks on $key")
+    val obj: model.S3Object = s3.getObject("tdr-files", key)
+    //    println(virusCheck(obj))
+    val request = sttp
+      .multipartBody(multipart("file", obj.getObjectContent).fileName(key))
+      .post(uri"http://localhost:5138/identify?format=json")
+    implicit val backend: SttpBackend[Id, Nothing] = HttpURLConnectionBackend()
+    val response = request.send()
+    response.body match {
+      case Right(json) => processJson(json)
+      case Left(s)     => println(s)
+    }
   }
 
   def virusCheck(obj: model.S3Object): Boolean = {
@@ -45,10 +71,11 @@ object ReceiveMessages extends App {
   }
 
   def getKeys(message: Message): Set[String] = {
-    val event: S3EventNotification = S3EventNotification.parseJson(message.getBody)
+    val event: S3EventNotification =
+      S3EventNotification.parseJson(message.getBody)
     return event.getRecords.asScala
-      .map(record => record.getS3.getObject.getKey).toSet
-
+      .map(record => record.getS3.getObject.getKey)
+      .toSet
   }
 
   val processMessage = (message: Message) => {
