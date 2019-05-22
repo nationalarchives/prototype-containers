@@ -1,0 +1,19 @@
+version: "3"
+services:
+  file-validation:
+    image: 247222723249.dkr.ecr.eu-west-2.amazonaws.com/tdr
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+  clamav:
+    image: 247222723249.dkr.ecr.eu-west-2.amazonaws.com/clamav
+    build:
+      context: .
+      dockerfile: Dockerfile-clamav
+  siegfried:
+    image: 247222723249.dkr.ecr.eu-west-2.amazonaws.com/siegfried
+    build:
+      context: .
+      dockerfile: Dockerfile-siegfried
