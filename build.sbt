@@ -6,6 +6,7 @@ ThisBuild / organization := "com.example"
 ThisBuild / organizationName := "example"
 
 val circeVersion = "0.10.0"
+val akkaHttpVersion = "10.1.8"
 
 
 
@@ -20,7 +21,9 @@ lazy val root = (project in file("."))
     libraryDependencies += "commons-io" % "commons-io" % "2.6",
     libraryDependencies += "fi.solita.clamav" % "clamav-client" % "1.0.0",
     libraryDependencies += "com.softwaremill.sttp" %% "core" % "1.5.17",
-    libraryDependencies ++= Seq(
+    libraryDependencies += "com.softwaremill.sttp" %% "json4s" % "1.5.17",
+    libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0",
+        libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk" % "1.11.80",
     ),
     libraryDependencies ++= Seq(

@@ -31,21 +31,3 @@ case class Response(
     identifiers: List[Identifiers],
     files: List[Files]
 )
-
-trait ApiSender[A] {
-  def sendToApi(value: A): Unit
-}
-
-object ApiSenderInstances {
-  implicit val responseSender: ApiSender[Response] = (value: Response) => {
-    println(s"response $value")
-  }
-}
-
-object ApiSyntax {
-
-  implicit class ApiWriterOps[A](value: A) {
-    def sendToApi(implicit w: ApiSender[A]): Unit = w.sendToApi(value)
-  }
-
-}
