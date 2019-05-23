@@ -22,8 +22,10 @@ object ReceiveMessages extends App {
   val messageProcessor: ProcessMessages = new ProcessMessages
   while (!result.getMessages.isEmpty) {
     logger.info(s"Found ${result.getMessages.size()} messages")
-    result.getMessages.forEach(message =>
-      messageProcessor.processMessage(message))
+    result.getMessages.forEach(message => {
+      messageProcessor.processMessage(message)
+      sqs.deleteMessage(queueName, message.getReceiptHandle)
+    })
     logger.info("Processed messages, looking for more")
     result = sqs.receiveMessage(queueName)
   }
