@@ -1,13 +1,12 @@
 package uk.gov.tna.tdr.graphql
 
-
 import com.softwaremill.sttp.json4s._
 import com.softwaremill.sttp.{HttpURLConnectionBackend, Id, SttpBackend, sttp, _}
 import com.typesafe.scalalogging.Logger
 import org.json4s.native.Serialization
 import uk.gov.tna.tdr.auth.TokenAuth
 import uk.gov.tna.tdr.checksum.ChecksumCheckResult
-import uk.gov.tna.tdr.fileformat.Response
+import uk.gov.tna.tdr.fileformat.{Files, Matches, Response}
 import uk.gov.tna.tdr.viruscheck.VirusCheckResult
 
 trait GraphqlSender[A] {
@@ -40,9 +39,21 @@ object GraphqlSenderInstances {
 
   implicit val responseSender: GraphqlSender[Response] = (value: Response) => {
     logger.info("sending file format response to graphql server")
-    val query: String = s"some json from $value"
+    val file: Files = value.files.head
+    val fileMatch: Matches = file.matches.head
+    val id: String = file.filename.split("/").head
+    val format: String = fileMatch.format
+    val mime: String = fileMatch.mime
+    val basis: String = fileMatch.basis
+    val warning: String = fileMatch.warning
+    val query: String = s"""
+        mutation {
+          createFileInfo(id: "$id", input: {format: "$format", mime: "$mime", basis: "$basis", warning: "$warning"}) {
+              id
+          }
+        }"""
 
-    sendQuery(query) //This won't work, make it a properly formatted graphql request
+    sendQuery(query)
   }
 
   implicit val virusCheckSender: GraphqlSender[VirusCheckResult] =
