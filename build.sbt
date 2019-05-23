@@ -23,7 +23,9 @@ lazy val root = (project in file("."))
     libraryDependencies += "com.softwaremill.sttp" %% "core" % "1.5.17",
     libraryDependencies += "com.softwaremill.sttp" %% "json4s" % "1.5.17",
     libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0",
-        libraryDependencies ++= Seq(
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
+    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+    libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk" % "1.11.80",
     ),
     libraryDependencies ++= Seq(
