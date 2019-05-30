@@ -32,7 +32,7 @@ object GraphqlSenderInstances {
       .headers(Map(
         "Authorization" -> s"Bearer ${tokenAuth.getToken().`access_token`}"))
       .post(
-        uri"https://hudcqpobs7.execute-api.eu-west-2.amazonaws.com/dev/graphql")
+        uri"https://m6t2cgd8uc.execute-api.eu-west-2.amazonaws.com/dev/validate")
 
     request.send()
   }
@@ -41,7 +41,7 @@ object GraphqlSenderInstances {
     logger.info("sending file format response to graphql server")
     val file: Files = value.files.head
     val fileMatch: Matches = file.matches.head
-    val id: String = file.filename.split("/").head
+    val id: String = file.filename.split("/").tail.head
     val format: String = fileMatch.format
     val mime: String = fileMatch.mime
     val basis: String = fileMatch.basis
@@ -59,15 +59,33 @@ object GraphqlSenderInstances {
   implicit val virusCheckSender: GraphqlSender[VirusCheckResult] =
     (value: VirusCheckResult) => {
       logger.info("sending virus check status to graphql server")
-      val query: String = s"some json from $value"
-      sendQuery(query) //This won't work, make it a properly formatted graphql request
+      val fileId = value.key.split("/").tail.head
+      val virusStatus = if (value.clean) "Clean" else "Virus"
+      val query: String =
+        s"""
+           mutation {
+             updateFileVirusCheckStatus(fileId: "$fileId", virusStatus: "$virusStatus") {
+               id
+             }
+           }
+         """.stripMargin
+      sendQuery(query)
     }
 
   implicit val checksumCheckSender: GraphqlSender[ChecksumCheckResult] =
     (value: ChecksumCheckResult) => {
       logger.info("sending checksum result to graphql server")
-      val query: String = s"some json from $value"
-      sendQuery(query) //This won't work, make it a properly formatted graphql request
+      val fileId = value.key.split("/").tail.head
+      val checksum = value.checksum
+      val query: String =
+        s"""
+           mutation {
+             updateFileChecksumStatus(fileId: "$fileId", checksum: "$checksum") {
+               id
+             }
+           }
+         """.stripMargin
+      sendQuery(query)
     }
 }
 
