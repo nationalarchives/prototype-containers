@@ -1,5 +1,7 @@
 package uk.gov.tna.tdr.messages
 
+import java.util.Objects
+
 import com.amazonaws.services.s3.event.S3EventNotification
 import com.amazonaws.services.s3.{AmazonS3ClientBuilder, model}
 import com.amazonaws.services.sqs.model.Message
@@ -32,11 +34,14 @@ class ProcessMessages {
   def getKeys(message: Message): Set[String] = {
     val event: S3EventNotification =
       S3EventNotification.parseJson(message.getBody)
-    logger.info(s"Found ${event.getRecords.size()} records in the message")
+    if (event != null) {
+      logger.info(s"Found ${event.getRecords.size()} records in the message")
 
-    return event.getRecords.asScala
-      .map(record => record.getS3.getObject.getKey)
-      .toSet
+      return event.getRecords.asScala
+        .map(record => record.getS3.getObject.getKey)
+        .toSet
+    }
+    return Set()
   }
 
   val processMessage = (message: Message) => {
