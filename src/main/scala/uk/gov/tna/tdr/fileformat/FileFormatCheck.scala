@@ -35,7 +35,7 @@ object FileFormatSenderInstances {
       val request = sttp
         .multipartBody(
           multipart("file", value.getObjectContent).fileName(value.getKey))
-        .post(uri"http://localhost:5138/identify?format=json")
+        .post(uri"http://localhost:8080/identify?format=json")
 
       val response = request.send()
 

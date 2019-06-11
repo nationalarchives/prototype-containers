@@ -1,33 +1,42 @@
 package uk.gov.tna.tdr.messages
 
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder
 import com.amazonaws.services.sqs.model.ReceiveMessageResult
+import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
 
-object ReceiveMessages extends App {
+class ReceiveMessages {
 
-  val logger = Logger("Receive Messages")
+  def receiveMessages(): Unit = {
+    val config: Config = ConfigFactory.load()
 
-  val queueName =
-    "https://sqs.eu-west-2.amazonaws.com/247222723249/tdr-file-uploads"
+    val logger = Logger("Receive Messages")
 
-  val sqs = AmazonSQSClientBuilder
-    .standard()
-    .withRegion("eu-west-2")
-    .build()
+    val endpoint = config.getString("aws.endpoint")
+    val queueName = config.getString("aws.queueurl")
+    val queueUrl = s"$endpoint/$queueName"
 
-  logger.info("Looking for messages")
+    val sqs = AmazonSQSClientBuilder
+      .standard()
+      .withEndpointConfiguration(new EndpointConfiguration(endpoint, "eu-west-2"))
+      .build()
 
-  private var result: ReceiveMessageResult = sqs.receiveMessage(queueName)
-  val messageProcessor: ProcessMessages = new ProcessMessages
-  while (!result.getMessages.isEmpty) {
-    logger.info(s"Found ${result.getMessages.size()} messages")
-    result.getMessages.forEach(message => {
-      messageProcessor.processMessage(message)
-      sqs.deleteMessage(queueName, message.getReceiptHandle)
-    })
-    logger.info("Processed messages, looking for more")
-    result = sqs.receiveMessage(queueName)
+    logger.info("Looking for messages")
+
+
+    var result: ReceiveMessageResult = sqs.receiveMessage(queueUrl)
+    val messageProcessor: ProcessMessages = new ProcessMessages
+    while (!result.getMessages.isEmpty) {
+      logger.info(s"Found ${result.getMessages.size()} messages")
+      result.getMessages.forEach(message => {
+        messageProcessor.processMessage(message)
+        sqs.deleteMessage(queueUrl, message.getReceiptHandle)
+      })
+      logger.info("Processed messages, looking for more")
+      result = sqs.receiveMessage(queueUrl)
+    }
+    logger.info("Done")
   }
-  logger.info("Done")
+
 }

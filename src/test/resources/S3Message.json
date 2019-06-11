@@ -1,0 +1,38 @@
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "eu-west-2",
+      "eventTime": "2019-06-06T09:28:28.367Z",
+      "eventName": "ObjectCreated:Put",
+      "userIdentity": {
+        "principalId": "AWS:AROATTD47MKY55AYOAEZ3:CognitoIdentityCredentials"
+      },
+      "requestParameters": {
+        "sourceIPAddress": "85.115.53.202"
+      },
+      "responseElements": {
+        "x-amz-request-id": "CD83CE3C006E9C2D",
+        "x-amz-id-2": "SNz4L0esyiQFqGIZ+Ww11tH0xRr2xEx+y0Fj5yNIzv3odCoZdEhe7wYr7IzqLRW/AZO0o2IVubU="
+      },
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "TDRFileUpload",
+        "bucket": {
+          "name": "tdr-files",
+          "ownerIdentity": {
+            "principalId": "A20YTRSUFYVUGE"
+          },
+          "arn": "arn:aws:s3:::tdr-files"
+        },
+        "object": {
+          "key": "2e11ee26-d85e-4aea-b922-809867063b62/67badf3a-4df5-4d13-b221-57ee5347b35b",
+          "size": 20480,
+          "eTag": "f4f545309816aa3c22929fd13d37c47b",
+          "sequencer": "005CF8DCBC4E5B109E"
+        }
+      }
+    }
+  ]
+}

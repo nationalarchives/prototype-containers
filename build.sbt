@@ -9,8 +9,9 @@ val circeVersion = "0.10.0"
 val akkaHttpVersion = "10.1.8"
 
 
-
+lazy val scalacheck = "org.scalacheck" %% "scalacheck" % "1.13.4"
 lazy val root = (project in file("."))
+
 
   .settings(
     name := "tdr-containers",
@@ -23,8 +24,12 @@ lazy val root = (project in file("."))
     libraryDependencies += "com.softwaremill.sttp" %% "core" % "1.5.17",
     libraryDependencies += "com.softwaremill.sttp" %% "json4s" % "1.5.17",
     libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0",
+    libraryDependencies += scalacheck % Test,
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+    libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5",
+    libraryDependencies += "com.typesafe" % "config" % "1.3.0",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-java-sdk" % "1.11.80",
     ),

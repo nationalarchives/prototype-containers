@@ -14,6 +14,9 @@ services:
     image: 247222723249.dkr.ecr.eu-west-2.amazonaws.com/clamav
     build:
       context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
       dockerfile: Dockerfile-clamav
     ports:
       - 3310:3310
@@ -23,6 +26,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-siegfried
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
     ports:
       - 5138:5138
     container_name: siegfried

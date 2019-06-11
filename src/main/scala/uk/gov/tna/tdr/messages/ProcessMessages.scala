@@ -27,8 +27,8 @@ class ProcessMessages {
     logger.info(s"running checks on $key")
     val obj: model.S3Object = s3.getObject("tdr-files", key)
     obj.runFileChecksAndSendToApi
-    obj.runVirusCheckAndSendToApi
-    obj.runChecksumCheckAndSendToApi
+//    obj.runVirusCheckAndSendToApi
+//    obj.runChecksumCheckAndSendToApi
   }
 
   def getKeys(message: Message): Set[String] = {

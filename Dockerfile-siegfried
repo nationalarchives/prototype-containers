@@ -1,8 +1,19 @@
 FROM ubuntu
 RUN apt-get update \
-                && apt-get install -y wget gnupg2 \
+                && apt-get install -y wget gnupg2 python3-pip \
                 && wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=bintray | apt-key add - \
                 && echo "deb http://dl.bintray.com/siegfried/debian wheezy main" | tee -a /etc/apt/sources.list \
                 && apt-get update \
-                && apt-get install -y siegfried
-CMD sf -log e,w,u,o -serve 0.0.0.0:5138
+                && apt-get install -y siegfried \
+                && pip3 install awscli
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ENV AWS_ACCESS_KEY_ID $AWS_ACCESS_KEY_ID
+ENV AWS_SECRET_ACCESS_KEY $AWS_SECRET_ACCESS_KEY
+ENV AWS_DEFAULT_REGION eu-west-2
+WORKDIR fileformat
+CMD aws s3 cp s3://tdr-files/$FILE_NAME . \
+                && sf -json $FILE_NAME > tmp \
+                && aws stepfunctions send-task-success --task-token $TASK_TOKEN_ENV_VARIABLE --task-output "$(cat tmp)"
+
+
